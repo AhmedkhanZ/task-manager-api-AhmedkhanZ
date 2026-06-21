@@ -150,7 +150,7 @@ app.post("/tasks", (req,res)=>{
         task.push(obj);
         console.log(task.length+" after pushing new task");
         console.log(obj);
-        res.send(" New Data creation successful and SAVED bro😎!!");
+        res.status(201).send("New Data creation successful");
         }
         
     }
@@ -168,29 +168,41 @@ app.put("/tasks/:id", (req,res)=>{
   {
     let {id} = req.params;
     let updatedData = req.body;
-    if( task.includes(id) )
+    const idExist = task.some(function(item) 
     {
-        console.log("Requested Doesn't Exist")
-        // res.status(404).send("Error: "+err.msg)
-        throw new Error("Requested Doesn't Exist")
+      return item.id === Number(id);
+    });
+    if( !idExist )
+    {
+        console.log("Requested-ID Doesn't Exist")
+        throw new Error("Requested-ID Doesn't Exist")
     }
-    else if( updatedData.title.length === 0 || updatedData.description.length === 0 || typeof updatedData.completed !== "boolean")
+    
+    if( updatedData.title.length === 0 || updatedData.description.length === 0 || typeof updatedData.completed !== "boolean")
     {
           console.log("Invalid Input");
-          throw new Error("Invalid Entries");
+          throw new Error("Invalid Input");
     }
     else
     {
       console.log("Updating the existing starts now................✌️")
       let updatedObjData = 
       {
-          'id':updatedData.id,
+          'id':Number(id),
           'title':updatedData.title,
           'description':updatedData.description,
           'completed':updatedData.completed,
-          'priority':newTask.priority
+          'priority':updatedData.priority
       }
-      task[id-1] = updatedObjData;
+      let ourId;
+      for(let i=0; i<task.length; i++)
+      {
+        if( task[i].id === Number(id))
+        {
+          ourId = i;
+        }
+      }
+      task[ourId] = updatedObjData;
 
        console.log(task[id-1]);
        res.send("updation successfully "+task[id-1]);
@@ -198,7 +210,14 @@ app.put("/tasks/:id", (req,res)=>{
     }
 
   }catch(err){
-    res.status(404).send("Error: "+err.msg);
+    if(err.message === "Requested-ID Doesn't Exist")
+    {
+      res.status(404).send("Error: "+err.message)
+    }
+    else
+    {
+      res.status(400).send("Error: "+err.message);
+    }
   }
     
 })
