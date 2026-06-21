@@ -205,7 +205,7 @@ app.put("/tasks/:id", (req,res)=>{
       task[ourId] = updatedObjData;
 
        console.log(task[id-1]);
-       res.send("updation successfully "+task[id-1]);
+       res.send("updation successfully "+task[ourId]);
        console.log("Updation successful bro😎!!")
     }
 
